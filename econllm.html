@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lifeng Ren">
+<meta name="dcterms.date" content="2023-11-29">
+
+<title>Introduction to Large Language Models (LLM) and Economics</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="econllm_files/libs/clipboard/clipboard.min.js"></script>
+<script src="econllm_files/libs/quarto-html/quarto.js"></script>
+<script src="econllm_files/libs/quarto-html/popper.min.js"></script>
+<script src="econllm_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="econllm_files/libs/quarto-html/anchor.min.js"></script>
+<link href="econllm_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="econllm_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="econllm_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="econllm_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="econllm_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#lecture-agenda" id="toc-lecture-agenda" class="nav-link active" data-scroll-target="#lecture-agenda"><span class="header-section-number">1</span> Lecture Agenda</a></li>
+  <li><a href="#llm-basics" id="toc-llm-basics" class="nav-link" data-scroll-target="#llm-basics"><span class="header-section-number">2</span> LLM Basics</a>
+  <ul class="collapse">
+  <li><a href="#transformer-gpt-bert" id="toc-transformer-gpt-bert" class="nav-link" data-scroll-target="#transformer-gpt-bert"><span class="header-section-number">2.1</span> Transformer, GPT, Bert</a></li>
+  <li><a href="#attention-mechanism" id="toc-attention-mechanism" class="nav-link" data-scroll-target="#attention-mechanism"><span class="header-section-number">2.2</span> Attention Mechanism</a></li>
+  <li><a href="#bert" id="toc-bert" class="nav-link" data-scroll-target="#bert"><span class="header-section-number">2.3</span> BERT</a></li>
+  <li><a href="#gpt" id="toc-gpt" class="nav-link" data-scroll-target="#gpt"><span class="header-section-number">2.4</span> GPT</a></li>
+  <li><a href="#train-my-own-gpt-model" id="toc-train-my-own-gpt-model" class="nav-link" data-scroll-target="#train-my-own-gpt-model"><span class="header-section-number">2.5</span> Train my own GPT model?</a></li>
+  </ul></li>
+  <li><a href="#openai-api" id="toc-openai-api" class="nav-link" data-scroll-target="#openai-api"><span class="header-section-number">3</span> OpenAI API</a>
+  <ul class="collapse">
+  <li><a href="#gpt-api-to-standardize-addresses" id="toc-gpt-api-to-standardize-addresses" class="nav-link" data-scroll-target="#gpt-api-to-standardize-addresses"><span class="header-section-number">3.1</span> GPT API to standardize addresses</a></li>
+  <li><a href="#redo-the-sentiment-analysis-using-gpt-api-compare-with-vader" id="toc-redo-the-sentiment-analysis-using-gpt-api-compare-with-vader" class="nav-link" data-scroll-target="#redo-the-sentiment-analysis-using-gpt-api-compare-with-vader"><span class="header-section-number">3.2</span> Redo The Sentiment Analysis using GPT API, compare with VADER</a></li>
+  </ul></li>
+  <li><a href="#nanogpt-do-it-together" id="toc-nanogpt-do-it-together" class="nav-link" data-scroll-target="#nanogpt-do-it-together"><span class="header-section-number">4</span> <code>nanoGPT</code> Do it Together</a>
+  <ul class="collapse">
+  <li><a href="#install-necessary-packages" id="toc-install-necessary-packages" class="nav-link" data-scroll-target="#install-necessary-packages"><span class="header-section-number">4.1</span> Install necessary packages</a></li>
+  <li><a href="#relocate-your-folder-to-the-nanogpt-folder" id="toc-relocate-your-folder-to-the-nanogpt-folder" class="nav-link" data-scroll-target="#relocate-your-folder-to-the-nanogpt-folder"><span class="header-section-number">4.2</span> Relocate your folder to the <code>nanoGPT</code> folder</a></li>
+  <li><a href="#run-prepare.py-in-the-shakespeare_char-folder" id="toc-run-prepare.py-in-the-shakespeare_char-folder" class="nav-link" data-scroll-target="#run-prepare.py-in-the-shakespeare_char-folder"><span class="header-section-number">4.3</span> Run <code>prepare.py</code> in the <code>shakespeare_char</code> folder</a></li>
+  <li><a href="#run-train_shakespeare_char.py-in-the-config-folder" id="toc-run-train_shakespeare_char.py-in-the-config-folder" class="nav-link" data-scroll-target="#run-train_shakespeare_char.py-in-the-config-folder"><span class="header-section-number">4.4</span> Run <code>train_shakespeare_char.py</code> in the <code>config</code> folder</a></li>
+  <li><a href="#run-sample.py-in-the-shakespeare_char-folder" id="toc-run-sample.py-in-the-shakespeare_char-folder" class="nav-link" data-scroll-target="#run-sample.py-in-the-shakespeare_char-folder"><span class="header-section-number">4.5</span> Run <code>sample.py</code> in the <code>shakespeare_char</code> folder</a></li>
+  <li><a href="#you-just-load-a-very-simple-gpt-model-on-your-own-machine" id="toc-you-just-load-a-very-simple-gpt-model-on-your-own-machine" class="nav-link" data-scroll-target="#you-just-load-a-very-simple-gpt-model-on-your-own-machine"><span class="header-section-number">4.6</span> You just load a very simple GPT model on your own machine!</a></li>
+  </ul></li>
+  <li><a href="#economics-research-applications" id="toc-economics-research-applications" class="nav-link" data-scroll-target="#economics-research-applications"><span class="header-section-number">5</span> Economics Research Applications</a>
+  <ul class="collapse">
+  <li><a href="#linktransformer" id="toc-linktransformer" class="nav-link" data-scroll-target="#linktransformer"><span class="header-section-number">5.1</span> <code>linktransformer</code></a></li>
+  <li><a href="#geollm" id="toc-geollm" class="nav-link" data-scroll-target="#geollm"><span class="header-section-number">5.2</span> <code>GeoLLM</code></a></li>
+  <li><a href="#let-us-try-togetherdemo-with-different-prompts-on-gpt3.5-and-gpt4" id="toc-let-us-try-togetherdemo-with-different-prompts-on-gpt3.5-and-gpt4" class="nav-link" data-scroll-target="#let-us-try-togetherdemo-with-different-prompts-on-gpt3.5-and-gpt4"><span class="header-section-number">5.3</span> Let us try together/demo with different prompts on gpt3.5 and gpt4</a></li>
+  </ul></li>
+  <li><a href="#where-to-find-more-resources" id="toc-where-to-find-more-resources" class="nav-link" data-scroll-target="#where-to-find-more-resources"><span class="header-section-number">6</span> Where to find more resources</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="econllm.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Introduction to Large Language Models (LLM) and Economics</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Lifeng Ren </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 29, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>Today, we are going to talk about the Large Language Models (LLM) and how it can be used in Economics Research.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/DALLE_cover.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Big Data and Large Language Models Cover Figure generated by <code>DALL-E 2</code></figcaption>
+</figure>
+</div>
+<section id="lecture-agenda" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Lecture Agenda</h1>
+<ul>
+<li><p>LLM Basics</p></li>
+<li><p>GPT API Demo</p></li>
+<li><p><code>nanoGPT</code> Demo</p></li>
+<li><p><code>linktransformer</code> Demo</p></li>
+<li><p><code>GeoLLM</code> Paper</p></li>
+<li><p>Other Economics Research Applications</p></li>
+</ul>
+</section>
+<section id="llm-basics" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> LLM Basics</h1>
+<section id="transformer-gpt-bert" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="transformer-gpt-bert"><span class="header-section-number">2.1</span> Transformer, GPT, Bert</h2>
+<ul>
+<li>The following three are the papers for the transformer(2017), GPT(Jun.2018), and Bert (Oct.2018)
+<ul>
+<li><a href="https://arxiv.org/abs/1706.03762">Attention is all you need</a></li>
+<li><a href="https://www.cs.ubc.ca/~amuham01/LING530/papers/radford2018improving.pdf">Improving Language Understanding by Generative Pre-Training</a></li>
+<li><a href="https://arxiv.org/abs/1810.04805">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a></li>
+</ul></li>
+</ul>
+<p>The main architecture figure below is from the <code>Attention</code> paper and it shows the architecture of the transformer. The transformer is the basic architecture of the GPT and Bert.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/transformers.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Source: Niklas Heidloff: “Foundation Models, Transformers, BERT and GPT”</figcaption>
+</figure>
+</div>
+<p>You can see a more detailed explanation of the transformer from the following picture:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/transformer_explain.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Source: Ali Issa: “Transformer, GPT-3,GPT-J, T5 and BERT.”</figcaption>
+</figure>
+</div>
+</section>
+<section id="attention-mechanism" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="attention-mechanism"><span class="header-section-number">2.2</span> Attention Mechanism</h2>
+<p>The attention mechanism is the key to the transformer. It is the mechanism that allows the transformer to learn the context of the words.</p>
+<p><strong>Example of Attention:</strong></p>
+<ul>
+<li>Consider the sentence: “<em>The cat sat on the mat.</em>”</li>
+</ul>
+<p>If a neural network model is tasked to translate this sentence into another language, it might use attention to focus on different words at different times. For instance:</p>
+<ul>
+<li><p>When translating “The cat,” the model might pay more attention to “cat,” understanding it’s the subject of the sentence.</p></li>
+<li><p>As it moves to “sat on,” the model’s focus shifts to understanding the action - “sat” and its relation with “cat.”</p></li>
+<li><p>Finally, for “the mat,” the attention mechanism helps the model link “mat” as the object where the action is taking place.</p></li>
+<li><p>Throughout this process, the attention mechanism dynamically adjusts which words (or parts of words) in the input sentence are most relevant at each step, allowing the model to create a coherent and contextually accurate translation.</p></li>
+</ul>
+<p><strong>Multi-Head Attention:</strong></p>
+<p>You can see this example from Jay Alammar’s blog post: <a href="http://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p>
+<p>When processing the word “it,” one attention head primarily concentrates on “the animal,” while another gives more weight to “tired.” Essentially, the model’s interpretation of “it” incorporates elements from the representations of both “animal” and “tired.”</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/multihead_attention.png" class="img-fluid figure-img" style="width:60.0%"></p>
+</figure>
+</div>
+</section>
+<section id="bert" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="bert"><span class="header-section-number">2.3</span> BERT</h2>
+<p>I will use this following example to explain the BERT model:</p>
+<p>Original Unlabeled Text:</p>
+<p>“John picked up his <code>MASK</code> to call his mother.”</p>
+<p>Converted Text with Masked Token:</p>
+<p>“John picked up his <code>phone</code> to call his mother.”</p>
+<p>Explanation:</p>
+<p>In this example, BERT is given a sentence with a key word masked out - represented by “MASK”. The model’s task is to predict the masked word based on the context provided by the rest of the sentence.</p>
+<p>In this case, the context clues - “picked up” and “to call his mother” - suggest that the masked word is likely an object used for communication, leading BERT to predict “phone.”</p>
+<p>You can also see the example from the original paper:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/bert_example.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Source: Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova: “BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding”</figcaption>
+</figure>
+</div>
+<p>Note on Self-Supervised Learning:</p>
+<p>This process, where BERT generates labeled data from originally unlabeled text by predicting masked words, is a form of self-supervised learning. It’s effective for processing large datasets, as BERT can learn rich representations of language by understanding the context and relationships between words without needing explicit human-labeled training data.</p>
+</section>
+<section id="gpt" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="gpt"><span class="header-section-number">2.4</span> GPT</h2>
+<p>GPT is decoder only transformer. GPT knows the previous, it predicts the future. (In economics, it is the <span class="math inline">\(\hat{Y}\)</span>)</p>
+<ul>
+<li>From the <code>GPT</code> Paper: Given an unsupervised corpus of tokens <span class="math inline">\(\mathcal{U}=\left\{u_1, \ldots, u_n\right\}\)</span>, we use a standard language modeling objective to maximize the following likelihood: <span class="math display">\[
+  L_1(\mathcal{U})=\sum_i \log P\left(u_i \mid u_{i-k}, \ldots, u_{i-1} ; \Theta\right)
+  \]</span></li>
+</ul>
+<p>And this is the very simple architecture of the GPT:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/GPT_simpleexample.png" class="img-fluid figure-img" style="width:80.0%"></p>
+<figcaption class="figure-caption">Source: “Language Models: GPT and GPT-2 How smaller language models inspired modern breakthroughs” by Cameron R. Wolfe</figcaption>
+</figure>
+</div>
+</section>
+<section id="train-my-own-gpt-model" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="train-my-own-gpt-model"><span class="header-section-number">2.5</span> Train my own GPT model?</h2>
+<p>Here is a flow created by Dr.Andrej Karpathy in his <a href="https://youtu.be/zjkBMFhNj_g?si=XfGIKNX7E7t6Nh6w">Intro to Large Language Models</a> video:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/trainyourownai.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Source: Andrej Karpathy: “Intro to Large Language Models”</figcaption>
+</figure>
+</div>
+<hr>
+<p><strong>So, basically, it is not possible to train our own GPT-3 Level model. But we have other options</strong></p>
+<ul>
+<li><p>Use the GPT API</p></li>
+<li><p>Load Local LLM Models</p>
+<ul>
+<li><p>Today, we are going to use <code>nanoGPT</code> to train a GPT model on our own machine</p></li>
+<li><p>In the future, you can use the <code>huggingface</code> to load the open source LLM models, such as <code>LLAMA2</code>.</p></li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="openai-api" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> OpenAI API</h1>
+<p>Since not all of you have access to the OpenAI API, I will go through the API with you and show you the basic usage of the API by using it to standardize the addresses. You can also use the API to other insteresting things, such as:</p>
+<ul>
+<li>Web Scraping: GPT-4 Vision API + Puppeteer
+<ul>
+<li><a href="https://www.youtube.com/watch?v=VeQR17k7fiU" class="uri">https://www.youtube.com/watch?v=VeQR17k7fiU</a></li>
+</ul></li>
+</ul>
+<section id="gpt-api-to-standardize-addresses" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="gpt-api-to-standardize-addresses"><span class="header-section-number">3.1</span> GPT API to standardize addresses</h2>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openai</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Set your OpenAI API key</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>api_key <span class="op">=</span> <span class="st">'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'</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"OPENAI_API_KEY"</span>] <span class="op">=</span> api_key</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> OpenAI()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clean_address(address):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Send an address to the GPT API for cleaning and standardization.</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">    address (str): The address to be cleaned.</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">    str: The cleaned and standardized address.</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"gpt-3.5-turbo"</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        messages<span class="op">=</span>[</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>            {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are an address expert that familiar with all the USPS address standard."</span>}, </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="ss">f"Clean and standardize this address. I only need the new address. Do not explain.: </span><span class="sc">{</span>address<span class="sc">}</span><span class="ss">"</span>}],</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        max_tokens<span class="op">=</span><span class="dv">60</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response.choices[<span class="dv">0</span>].message.content</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the CSV file with the addresses</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'./unstandardized_addresses.csv'</span>)  <span class="co"># Adjust the path to your CSV file</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Cleaning each address in the DataFrame</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'cleaned_address'</span>] <span class="op">=</span> df[<span class="st">'address'</span>].<span class="bu">apply</span>(clean_address)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the cleaned data to a new CSV</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">'./cleaned_location_data.csv'</span>, index<span class="op">=</span><span class="va">False</span>)  <span class="co"># Adjust the path as needed</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>The <code>unstandardized_addresses.csv</code> is also generated by <code>ChatGPT</code>.</li>
+</ul>
+</section>
+<section id="redo-the-sentiment-analysis-using-gpt-api-compare-with-vader" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="redo-the-sentiment-analysis-using-gpt-api-compare-with-vader"><span class="header-section-number">3.2</span> Redo The Sentiment Analysis using GPT API, compare with VADER</h2>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openai</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Set your OpenAI API key</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>api_key <span class="op">=</span> <span class="st">'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'</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"OPENAI_API_KEY"</span>] <span class="op">=</span> api_key</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> OpenAI()</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>test_sentences <span class="op">=</span> [</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"This new song is lit 🔥🔥🔥"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Sigh... I guess today was just not my day 😞"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Wow, that's awesome!!! 😃👍"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I can't stand this! So frustrating! 😡"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"IDK what's going on, kinda confused rn 🤷‍♂️"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"LOL, that was hilarious 😂"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ugh, Mondays are the worst 😫"</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"OMG, I just got the job offer!!! 😍"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"No way, that's cray cray 😜"</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Why is everyone so glum? Cheer up! 😊"</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"gpt-3.5-turbo"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"Assume the role of a sentiment analysis specialist. Your task is to evaluate the sentiment of given sentences, categorizing them as positive, neutral, or negative. Each sentence should be scored with a fraction representing its sentiment in each category. Ensure that the combined total of these three fractional scores equals 1 for each sentence, with each score ranging from 0 to 1. Provide a balanced and precise sentiment analysis, reflecting the nuanced emotional content of each statement."</span>}, </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="ss">f"</span><span class="sc">{</span>test_sentences<span class="sc">}</span><span class="ss">"</span>}],</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(response.choices[<span class="dv">0</span>].message)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Output:</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ChatCompletionMessage(content<span class="op">=</span><span class="st">'[</span><span class="ch">\'</span><span class="st">This new song is lit 🔥🔥🔥</span><span class="ch">\'</span><span class="st">]: </span><span class="ch">\n</span><span class="st">Positive: 0.9</span><span class="ch">\n</span><span class="st">Neutral: 0.1</span><span class="ch">\n</span><span class="st">Negative: 0.0</span><span class="ch">\n\n</span><span class="st">[</span><span class="ch">\'</span><span class="st">Sigh... I guess today was just not my day 😞</span><span class="ch">\'</span><span class="st">]: </span><span class="ch">\n</span><span class="st">Positive: 0.1</span><span class="ch">\n</span><span class="st">Neutral: 0.2</span><span class="ch">\n</span><span class="st">Negative: 0.7</span><span class="ch">\n\n</span><span class="st">["Wow, that</span><span class="ch">\'</span><span class="st">s awesome!!! 😃👍"]: </span><span class="ch">\n</span><span class="st">Positive: 0.9</span><span class="ch">\n</span><span class="st">Neutral: 0.1</span><span class="ch">\n</span><span class="st">Negative: 0.0</span><span class="ch">\n\n</span><span class="st">["I can</span><span class="ch">\'</span><span class="st">t stand this! So frustrating! 😡"]: </span><span class="ch">\n</span><span class="st">Positive: 0.1</span><span class="ch">\n</span><span class="st">Neutral: 0.2</span><span class="ch">\n</span><span class="st">Negative: 0.7</span><span class="ch">\n\n</span><span class="st">["IDK what</span><span class="ch">\'</span><span class="st">s going on, kinda confused rn 🤷</span><span class="ch">\\</span><span class="st">u200d♂️"]: </span><span class="ch">\n</span><span class="st">Positive: 0.1</span><span class="ch">\n</span><span class="st">Neutral: 0.8</span><span class="ch">\n</span><span class="st">Negative: 0.1</span><span class="ch">\n\n</span><span class="st">[</span><span class="ch">\'</span><span class="st">LOL, that was hilarious 😂</span><span class="ch">\'</span><span class="st">]: </span><span class="ch">\n</span><span class="st">Positive: 0.9</span><span class="ch">\n</span><span class="st">Neutral: 0.1</span><span class="ch">\n</span><span class="st">Negative: 0.0</span><span class="ch">\n\n</span><span class="st">[</span><span class="ch">\'</span><span class="st">Ugh, Mondays are the worst 😫</span><span class="ch">\'</span><span class="st">]: </span><span class="ch">\n</span><span class="st">Positive: 0.1</span><span class="ch">\n</span><span class="st">Neutral: 0.3</span><span class="ch">\n</span><span class="st">Negative: 0.6</span><span class="ch">\n\n</span><span class="st">[</span><span class="ch">\'</span><span class="st">OMG, I just got the job offer!!! 😍</span><span class="ch">\'</span><span class="st">]: </span><span class="ch">\n</span><span class="st">Positive: 0.9</span><span class="ch">\n</span><span class="st">Neutral: 0.1</span><span class="ch">\n</span><span class="st">Negative: 0.0</span><span class="ch">\n\n</span><span class="st">["No way, that</span><span class="ch">\'</span><span class="st">s cray cray 😜"]: </span><span class="ch">\n</span><span class="st">Positive: 0.8</span><span class="ch">\n</span><span class="st">Neutral: 0.2</span><span class="ch">\n</span><span class="st">Negative: 0.0</span><span class="ch">\n\n</span><span class="st">[</span><span class="ch">\'</span><span class="st">Why is everyone so glum? Cheer up! 😊</span><span class="ch">\'</span><span class="st">]: </span><span class="ch">\n</span><span class="st">Positive: 0.9</span><span class="ch">\n</span><span class="st">Neutral: 0.1</span><span class="ch">\n</span><span class="st">Negative: 0.0'</span>, role<span class="op">=</span><span class="st">'assistant'</span>, function_call<span class="op">=</span><span class="va">None</span>, tool_calls<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As we recalled from the Lexical/Dictonary Based Sentiment Analysis, the VADER is not doing a good job on the test case we provided as we can see below.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/VADER_demo.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption class="figure-caption">VADER’s results</figcaption>
+</figure>
+</div>
+<p>Here is the data formatted into a Markdown table. The table includes two sets of sentiment analysis results for each sentence: one from your ChatCompletionMessage and another from VADER, excluding the compound score:</p>
+<table class="table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 19%">
+<col style="width: 18%">
+<col style="width: 19%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Sentence</th>
+<th>ChatCompletion Positive</th>
+<th>ChatCompletion Neutral</th>
+<th>ChatCompletion Negative</th>
+<th>VADER Positive</th>
+<th>VADER Neutral</th>
+<th>VADER Negative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“This new song is lit 🔥🔥🔥”</td>
+<td>0.9</td>
+<td>0.1</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.41</td>
+<td>0.59</td>
+</tr>
+<tr class="even">
+<td>“Sigh… I guess today was just not my day 😞”</td>
+<td>0.1</td>
+<td>0.2</td>
+<td>0.7</td>
+<td>0.289</td>
+<td>0.711</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<td>“Wow, that’s awesome!!! 😃👍”</td>
+<td>0.9</td>
+<td>0.1</td>
+<td>0.0</td>
+<td>0.617</td>
+<td>0.383</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<td>“I can’t stand this! So frustrating! 😡”</td>
+<td>0.1</td>
+<td>0.2</td>
+<td>0.7</td>
+<td>0.0</td>
+<td>0.618</td>
+<td>0.382</td>
+</tr>
+<tr class="odd">
+<td>“IDK what’s going on, kinda confused rn 🤷‍♂️”</td>
+<td>0.1</td>
+<td>0.8</td>
+<td>0.1</td>
+<td>0.0</td>
+<td>0.685</td>
+<td>0.315</td>
+</tr>
+<tr class="even">
+<td>“LOL, that was hilarious 😂”</td>
+<td>0.9</td>
+<td>0.1</td>
+<td>0.0</td>
+<td>0.593</td>
+<td>0.295</td>
+<td>0.112</td>
+</tr>
+<tr class="odd">
+<td>“Ugh, Mondays are the worst 😫”</td>
+<td>0.1</td>
+<td>0.3</td>
+<td>0.6</td>
+<td>0.0</td>
+<td>0.29</td>
+<td>0.71</td>
+</tr>
+<tr class="even">
+<td>“OMG, I just got the job offer!!! 😍”</td>
+<td>0.9</td>
+<td>0.1</td>
+<td>0.0</td>
+<td>0.279</td>
+<td>0.721</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<td>“No way, that’s cray cray 😜”</td>
+<td>0.8</td>
+<td>0.2</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.784</td>
+<td>0.216</td>
+</tr>
+<tr class="even">
+<td>“Why is everyone so glum? Cheer up! 😊”</td>
+<td>0.9</td>
+<td>0.1</td>
+<td>0.0</td>
+<td>0.451</td>
+<td>0.366</td>
+<td>0.183</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>**Beyond using the API, can we load our</p>
+<hr>
+</section>
+</section>
+<section id="nanogpt-do-it-together" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> <code>nanoGPT</code> Do it Together</h1>
+<ul>
+<li>We are going to go through one of the most hands on tutorial on a transformer model: <code>nanoGPT</code> developed by Andrej Karpathy</li>
+<li>Please go to the repositary and <code>git clone</code> the <code>nanoGPT</code> to your local machine
+<ul>
+<li><a href="https://github.com/karpathy/nanoGPT" class="uri">https://github.com/karpathy/nanoGPT</a></li>
+</ul></li>
+<li>I will go through the code with you and explain the details.</li>
+</ul>
+<section id="install-necessary-packages" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="install-necessary-packages"><span class="header-section-number">4.1</span> Install necessary packages</h2>
+<ul>
+<li>Open your <code>miniforge3</code> terminal (WIN) or <code>terminal</code> (MAC)</li>
+</ul>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mamba init</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>mamba activate <span class="dv">8222</span><span class="er">env3</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>pip install torch numpy transformers datasets tiktoken wandb tqdm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="relocate-your-folder-to-the-nanogpt-folder" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="relocate-your-folder-to-the-nanogpt-folder"><span class="header-section-number">4.2</span> Relocate your folder to the <code>nanoGPT</code> folder</h2>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pwd <span class="co"># check your current working directory</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>cd <span class="op">/</span>Users<span class="op">/</span>lifengren<span class="op">/</span>github<span class="op">/</span>nanoGPT <span class="co"># change the directory to the nanoGPT folder</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-prepare.py-in-the-shakespeare_char-folder" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="run-prepare.py-in-the-shakespeare_char-folder"><span class="header-section-number">4.3</span> Run <code>prepare.py</code> in the <code>shakespeare_char</code> folder</h2>
+<p>You can do this either using</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>python data<span class="op">/</span>shakespeare_char<span class="op">/</span>prepare.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>This will automatically generate 4 files for you:
+<ul>
+<li><code>input.txt</code></li>
+<li><code>meta.pkl</code></li>
+<li><code>train.bin</code></li>
+<li><code>val.bin</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="run-train_shakespeare_char.py-in-the-config-folder" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="run-train_shakespeare_char.py-in-the-config-folder"><span class="header-section-number">4.4</span> Run <code>train_shakespeare_char.py</code> in the <code>config</code> folder</h2>
+<p>Now we can use the given input to train our model. Since we are using the CPU, we can use the following command:</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>python train.py config<span class="op">/</span>train_shakespeare_char.py <span class="op">--</span>device<span class="op">=</span>cpu <span class="op">--</span><span class="bu">compile</span><span class="op">=</span><span class="va">False</span> <span class="op">--</span>eval_iters<span class="op">=</span><span class="dv">20</span> <span class="op">--</span>log_interval<span class="op">=</span><span class="dv">1</span> <span class="op">--</span>block_size<span class="op">=</span><span class="dv">64</span> <span class="op">--</span>batch_size<span class="op">=</span><span class="dv">12</span> <span class="op">--</span>n_layer<span class="op">=</span><span class="dv">4</span> <span class="op">--</span>n_head<span class="op">=</span><span class="dv">4</span> <span class="op">--</span>n_embd<span class="op">=</span><span class="dv">128</span> <span class="op">--</span>max_iters<span class="op">=</span><span class="dv">2000</span> <span class="op">--</span>lr_decay_iters<span class="op">=</span><span class="dv">2000</span> <span class="op">--</span>dropout<span class="op">=</span><span class="fl">0.0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-sample.py-in-the-shakespeare_char-folder" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="run-sample.py-in-the-shakespeare_char-folder"><span class="header-section-number">4.5</span> Run <code>sample.py</code> in the <code>shakespeare_char</code> folder</h2>
+<p>Now, we can use the trained model to generate some text in shakespeare style. We can use the following command:</p>
+<p><code>python sample.py --out_dir=out-shakespeare-char --device=cpu</code></p>
+</section>
+<section id="you-just-load-a-very-simple-gpt-model-on-your-own-machine" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="you-just-load-a-very-simple-gpt-model-on-your-own-machine"><span class="header-section-number">4.6</span> You just load a very simple GPT model on your own machine!</h2>
+<p>You can try this on Co-Lab + Lambda GPU and you can actually train a GPT-2 model!</p>
+<p>For more details on how to train a GPT-2 model, and fine tune it, please refer to the following tutorial:</p>
+<ul>
+<li><a href="https://github.com/karpathy/nanoGPT" class="uri">https://github.com/karpathy/nanoGPT</a></li>
+</ul>
+</section>
+</section>
+<section id="economics-research-applications" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Economics Research Applications</h1>
+<section id="linktransformer" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="linktransformer"><span class="header-section-number">5.1</span> <code>linktransformer</code></h2>
+<p>This is one example of applciations of LLM in Economics Research. You can use for the data cleaning and data linking section. I provided a python script for you to try out the <code>linktransformer</code> package.</p>
+<ul>
+<li>For more information, please refer to their GitHub page: <a href="https://github.com/dell-research-harvard/linktransformer" class="uri">https://github.com/dell-research-harvard/linktransformer</a></li>
+</ul>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sentence_transformers <span class="im">import</span> SentenceTransformer</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> linktransformer <span class="im">as</span> lt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage of lm_merge_df</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>data2 <span class="op">=</span> {</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CompanyName"</span>: [<span class="st">"TechCorp"</span>, <span class="st">"InfoTech Solutions"</span>, <span class="st">"GlobalSoft Inc"</span>, <span class="st">"DataTech Co"</span>, <span class="st">"SoftSys Ltd"</span>, <span class="st">"TechCorp"</span>],</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Industry"</span>: [<span class="st">"Technology"</span>, <span class="st">"Technology"</span>, <span class="st">"Software"</span>, <span class="st">"Data Analytics"</span>, <span class="st">"Software"</span>, <span class="st">"Technology"</span>],</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Founded_Year"</span>: [<span class="dv">2005</span>, <span class="dv">1998</span>, <span class="dv">2010</span>, <span class="dv">2012</span>, <span class="dv">2003</span>, <span class="dv">2005</span>]</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a DataFrame from the data</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> pd.DataFrame(data2)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>data1 <span class="op">=</span> {</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CompanyName"</span>: [<span class="st">"Tech Corporation"</span>, <span class="st">"InfoTech Soln"</span>, <span class="st">"GlobalSoft Incorporated"</span>, <span class="st">"DataTech Corporation"</span>, </span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"SoftSys Limited"</span>, <span class="st">"TechCorp"</span>, <span class="st">"AlphaSoft Systems"</span>],</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Revenue (Millions USD)"</span>: [<span class="dv">5000</span>, <span class="dv">4500</span>, <span class="dv">3000</span>, <span class="dv">2500</span>, <span class="dv">4000</span>, <span class="dv">5500</span>, <span class="dv">3800</span>],</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Num_Employees"</span>: [<span class="dv">10000</span>, <span class="dv">8500</span>, <span class="dv">6000</span>, <span class="dv">5000</span>, <span class="dv">7500</span>, <span class="dv">12000</span>, <span class="dv">7000</span>],</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Country"</span>: [<span class="st">"USA"</span>, <span class="st">"Canada"</span>, <span class="st">"India"</span>, <span class="st">"Germany"</span>, <span class="st">"UK"</span>, <span class="st">"USA"</span>, <span class="st">"Spain"</span>]</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a DataFrame from the data</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>df1 <span class="op">=</span> pd.DataFrame(data1)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>df_lm_matched <span class="op">=</span> lt.merge(df1, df2, merge_type<span class="op">=</span><span class="st">'1:m'</span>, on<span class="op">=</span><span class="st">"CompanyName"</span>, model<span class="op">=</span><span class="st">"all-MiniLM-L6-v2"</span>,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>left_on<span class="op">=</span><span class="va">None</span>, right_on<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df_lm_matched)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+<p>In addition to some basic data analysis skills that can be obviously done using the LLM, there are some other interesting applications of LLM in Economics Research.</p>
+<hr>
+</section>
+<section id="geollm" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="geollm"><span class="header-section-number">5.2</span> <code>GeoLLM</code></h2>
+<p>This is one of paper that using LLM’s knowledge to do some spatial-soci-economic analysis data prediction.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/geollm.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption class="figure-caption">GeoLLM Paper</figcaption>
+</figure>
+</div>
+<ul>
+<li><p>The study demonstrates that LLMs contain substantial spatial information about various locations.</p></li>
+<li><p>They introduce GeoLLM, a novel method that effectively extracts geospatial knowledge from LLMs using auxiliary map data from OpenStreetMap.</p></li>
+<li><p>The utility of GeoLLM is demonstrated across various crucial tasks, such as measuring population density and economic livelihoods.</p></li>
+</ul>
+</section>
+<section id="let-us-try-togetherdemo-with-different-prompts-on-gpt3.5-and-gpt4" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="let-us-try-togetherdemo-with-different-prompts-on-gpt3.5-and-gpt4"><span class="header-section-number">5.3</span> Let us try together/demo with different prompts on gpt3.5 and gpt4</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/geollm_trytogether.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption class="figure-caption">Source: GeoLLM Paper-Fig1</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="where-to-find-more-resources" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Where to find more resources</h1>
+<ul>
+<li>Hugging Face</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/huggingface.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+<ul>
+<li>GitHub
+<ul>
+<li><a href="https://github.com/topics/large-language-models" class="uri">https://github.com/topics/large-language-models</a></li>
+<li><a href="https://github.com/topics/chatgpt" class="uri">https://github.com/topics/chatgpt</a></li>
+<li><a href="https://github.com/f/awesome-chatgpt-prompts" class="uri">https://github.com/f/awesome-chatgpt-prompts</a></li>
+<li><a href="https://github.com/openai/openai-cookbook" class="uri">https://github.com/openai/openai-cookbook</a></li>
+</ul></li>
+<li>YouTube</li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
