@@ -9,10 +9,9 @@ This is a repository for the APEC8222-Guest Lecture on Nov. 30th 2023. In this c
 
 ## Materials and Recordings
 
-This will be updated soon after class.
-
+This is the [Zoom Link](https://umn.zoom.us/rec/share/rkLuSDF9K_VlTbTMLRPvoexnnZKAKkUQanpTFiM9dZMZaXevKd5FBHTTq_alAT8h.ITDfvuRQZBnqwuwf) for this lecture. 
 
 
 ## Notes
 
-This class will be recorded and the link will be provided after class. Please do not distribute the class materials until the end of this week. I have to finishing cross checked the references.
+Please do not distribute the class materials until the end of this week. I have to finishing cross checked the references.
